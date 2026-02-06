@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Registration</title>
+	<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div class="container register-container">
+    <h2>New Employee Registration</h2>
+
+    <div class="form-group">
+        <label for="name">Employee Name</label>
+        <input type="text" id="name" placeholder="Full Name">
+    </div>
+
+    <div class="form-group">
+        <label for="projectName">Project Assignment</label>
+        <select id="projectName">
+            <option value="">Select Assigned Project</option>
+            <option>Leave Management System</option>
+            <option>Banking Application</option>
+            <option>E-Commerce Platform</option>
+            <option>Hospital Management System</option>
+            <option>Payroll System</option>
+            <option>Inventory Management</option>
+            <option>CRM System</option>
+            <option>Cloud Monitoring Tool</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role">
+            <option value="">Select Employee Role</option>
+            <option>Developer</option>
+            <option>Tester</option>
+			<option>Finance</option>
+            <option>Support</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Set Password</label>
+        <input type="password" id="password" placeholder="Create a strong password">
+    </div>
+
+    <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" placeholder="Re-enter password">
+    </div>
+
+    <button class="primary-btn" onclick="registerEmployee()">Register Account</button>
+    <button class="secondary-btn" onclick="goToLogin()">Go to Login</button>
+
+    <p id="result" class="message-status"></p>
+</div>
+
+<script>
+// (Keep the existing JavaScript logic here)
+function registerEmployee() {
+    const name = document.getElementById("name").value;
+    const projectName = document.getElementById("projectName").value;
+    const role = document.getElementById("role").value;
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirmPassword").value;
+    const result = document.getElementById("result");
+
+    if (!name || !projectName || !role || !password) {
+        result.innerText = "All fields are required for registration.";
+        result.style.color = "red";
+        return;
+    }
+
+    if (password !== confirm) {
+        result.innerText = "Passwords do not match. Please verify.";
+        result.style.color = "red";
+        return;
+    }
+
+    fetch('/employee/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            name, projectName, role, password
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        result.style.color = "green";
+        result.innerHTML = "Registration successful! You may now log in.";
+    });
+}
+
+function goToLogin() {
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

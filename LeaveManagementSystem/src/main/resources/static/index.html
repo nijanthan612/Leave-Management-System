@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container page-container">
+    <h2>Employee Dashboard</h2>
+
+    <!-- ================= USER PROFILE ================= -->
+    <div class="card details-card">
+        <h3>User Profile</h3>
+        <p><b>Name:</b> <span id="empName"></span></p>
+        <p><b>Project:</b> <span id="empProject"></span></p>
+        <p><b>Role:</b> <span id="empRole"></span></p>
+
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- ================= APPLY LEAVE ================= -->
+    <div class="card">
+        <h3>Apply for Leave</h3>
+
+        <div class="form-group flex-row">
+            <div style="flex:1">
+                <label>From Date</label>
+                <input type="date" id="fromDate">
+            </div>
+
+            <div style="flex:1">
+                <label>To Date</label>
+                <input type="date" id="toDate">
+            </div>
+
+            <div style="flex:2">
+                <label>Reason</label>
+                <input type="text" id="reason"
+                       placeholder="Vacation, Sick Leave, Personal">
+            </div>
+        </div>
+
+        <br>
+        <button class="primary-btn" onclick="applyLeave()">
+            Submit Leave Request
+        </button>
+
+        <p id="msg" class="message-status"></p>
+    </div>
+
+    <!-- ================= LEAVE HISTORY ================= -->
+    <div class="card">
+        <h3>Your Leave Request History</h3>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dates</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Approved / Rejected By</th>
+                        <th>Approved / Rejected On</th>
+                    </tr>
+                </thead>
+                <tbody id="myLeaves"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ================= AUTH ================= */
+const empId = localStorage.getItem("empId");
+const role = localStorage.getItem("role");
+
+if (!empId) location.href = "login.html";
+if (role === "Manager" || role === "HR") location.href = "admin.html";
+
+/* ================= LOAD EMPLOYEE ================= */
+fetch("/employee/" + empId)
+.then(r => r.json())
+.then(emp => {
+    empName.innerText = emp.name;
+    empProject.innerText = emp.projectName;
+    empRole.innerText = emp.role;
+});
+
+/* ================= APPLY LEAVE ================= */
+function applyLeave() {
+
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+    const reason = document.getElementById("reason").value;
+    const msg = document.getElementById("msg");
+
+    if (!fromDate || !reason) {
+        msg.innerText = "From Date and Reason required";
+        msg.style.color = "red";
+        return;
+    }
+
+    fetch("/leave/apply/" + empId, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            fromDate: fromDate,
+            toDate: toDate || fromDate,
+            reason: reason
+        })
+    })
+    .then(res => res.text())
+    .then(text => {
+        msg.innerText = text;
+        msg.style.color = "green";
+
+        // clear form
+        document.getElementById("fromDate").value = "";
+        document.getElementById("toDate").value = "";
+        document.getElementById("reason").value = "";
+
+        loadMyLeaves();
+    })
+    .catch(err => {
+        msg.innerText = "Error submitting leave";
+        msg.style.color = "red";
+        console.error(err);
+    });
+}
+
+
+/* ================= LOAD LEAVES ================= */
+function loadMyLeaves() {
+    fetch("/leave/employee/" + empId)
+    .then(r => r.json())
+    .then(data => {
+
+        let rows = "";
+
+        data.forEach(l => {
+
+            const dateText =
+                l.fromDate === l.toDate
+                ? l.fromDate
+                : `${l.fromDate} To ${l.toDate}`;
+
+            const statusClass =
+                l.status === "APPROVED" ? "status-approved" :
+                l.status === "REJECTED" ? "status-rejected" :
+                "status-pending";
+
+            rows += `
+            <tr>
+                <td>${dateText}</td>
+                <td>${l.reason}</td>
+                <td class="${statusClass}">${l.status}</td>
+                <td>${l.actionBy || "-"}</td>
+                <td>${l.actionOn ? l.actionOn.split("T")[0] : "-"}</td>
+            </tr>`;
+        });
+
+        myLeaves.innerHTML =
+            rows || `<tr><td colspan="5">No leave history</td></tr>`;
+    });
+}
+
+function logout() {
+    localStorage.clear();
+    location.href = "login.html";
+}
+
+loadMyLeaves();
+</script>
+
+</body>
+</html>

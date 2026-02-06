@@ -1,0 +1,220 @@
+/* ===== GLOBAL RESET ===== */
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f4f6f8;
+    color: #333;
+}
+
+/* ===== PAGE CONTAINER (Main Wrapper) ===== */
+.container {
+    max-width: 1100px; /* Standard width for dashboard */
+    margin: 30px auto;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* Specific smaller container for Login/Register pages */
+.login-container, .register-container {
+    max-width: 450px;
+    margin-top: 10vh; /* Center vertically better */
+    padding: 30px;
+}
+
+/* ===== DASHBOARD CARDS (for index.html) ===== */
+.card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.details-card { /* Employee info card */
+    background: #f1f5f9;
+    padding: 15px 20px;
+}
+
+/* ===== HEADINGS ===== */
+h2, h3 {
+    margin-top: 0;
+    color: #1f2937;
+}
+
+/* ===== DETAILS BOX (Used in Admin) ===== */
+.details-box {
+    background: #f1f5f9;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.details-box p {
+    margin: 6px 0;
+    font-weight: 500;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 0; /* Removed margin-top to use form-group spacing */
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.flex-row {
+    display: flex;
+    gap: 15px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    opacity: 0.95;
+}
+
+.primary-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.secondary-btn {
+    background: #6b7280;
+    color: white;
+}
+
+.full-width-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.logout-btn {
+    width: 100%;
+    margin-top: 15px;
+    background: #dc3545;
+    color: white;
+}
+
+/* ===== ACTION BUTTONS (Admin Page) ===== */
+.action-btn {
+    padding: 6px 12px;
+    margin: 2px;
+    border-radius: 4px;
+    color: white;
+}
+
+.approve {
+    background: #198754;
+}
+
+.reject {
+    background: #dc3545;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+thead {
+    background: #2563eb;
+    color: white;
+    position: sticky; /* Keep header visible on scroll */
+    top: 0;
+    z-index: 10;
+}
+
+th, td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+/* Striped rows for better readability */
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* ===== TABLE SCROLL (IMPORTANT) ===== */
+.table-wrapper {
+    max-height: 320px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+/* ===== STATUS COLORS (Applied to table cells) ===== */
+.status-approved {
+    color: #198754; /* Green */
+    font-weight: bold;
+}
+
+.status-rejected {
+    color: #dc3545; /* Red */
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #f59e0b; /* Amber */
+    font-weight: bold;
+}
+
+/* ===== MESSAGING ===== */
+.message-status {
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+/* ===== LINKS & FOOTERS ===== */
+a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.link-footer {
+    text-align: center;
+    margin-top: 20px;
+}

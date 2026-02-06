@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Admin Dashboard</h2>
+
+    <div class="details-box" id="adminDetails"></div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+
+    <h3>Leave Requests</h3>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Project</th>
+                    <th>Role</th>
+                    <th>Approved / Rejected By</th>
+                    <th>Action</th>
+                    <th>Chat</th>
+                </tr>
+            </thead>
+            <tbody id="leaveTable"></tbody>
+        </table>
+    </div>
+
+    <!-- ================= CHAT BOX ================= -->
+    <div id="chatSection" class="details-box" style="display:none; margin-top:20px;">
+        <h3>Leave Discussion</h3>
+
+        <div id="chatMessages" style="max-height:200px; overflow-y:auto;"></div>
+
+        <input type="text" id="chatInput" placeholder="Type message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+const adminName = localStorage.getItem("name");
+const adminRole = localStorage.getItem("role");
+const adminProject = localStorage.getItem("project");
+
+const adminDetails = document.getElementById("adminDetails");
+const leaveTable = document.getElementById("leaveTable");
+const chatSection = document.getElementById("chatSection");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+
+let currentLeaveId = null;
+
+/* ===== ADMIN INFO ===== */
+adminDetails.innerHTML = `
+<p><b>Name:</b> ${adminName}</p>
+<p><b>Project:</b> ${adminProject}</p>
+<p><b>Role:</b> ${adminRole}</p>`;
+
+/* ===== LOAD LEAVES ===== */
+function loadLeaves() {
+    fetch("/leave/all")
+        .then(r => r.json())
+        .then(data => {
+
+            const rows = data
+                .filter(l => l.employee && l.employee.projectName === adminProject)
+                .map(l => `
+                    <tr>
+                        <td>${l.employee.name}</td>
+                        <td>${l.fromDate}</td>
+                        <td>${l.toDate}</td>
+                        <td>${l.reason}</td>
+                        <td>${l.status}</td>
+                        <td>${l.employee.projectName}</td>
+                        <td>${l.employee.role}</td>
+                        <td>${l.actionBy || "-"}</td>
+                        <td>
+                            ${
+                                l.status === "PENDING"
+                                ? `<button class="action-btn approve" onclick="approve(${l.id})">Approve</button>
+                                   <button class="action-btn reject" onclick="reject(${l.id})">Reject</button>`
+                                : "Submitted"
+                            }
+                        </td>
+                        <td>
+                            <button class="action-btn"
+                                onclick="openChat(${l.id}, '${l.status}')">
+                                Chat
+                            </button>
+                        </td>
+                    </tr>
+                `)
+                .join("");
+
+            leaveTable.innerHTML = rows || `
+                <tr>
+                    <td colspan="10" style="text-align:center;">
+                        No leave requests
+                    </td>
+                </tr>`;
+        });
+}
+
+/* ===== CHAT ===== */
+function openChat(leaveId, status) {
+    currentLeaveId = leaveId;
+    chatSection.style.display = "block";
+    chatInput.disabled = status !== "PENDING";
+    loadChat();
+}
+
+function loadChat() {
+    chatMessages.innerHTML = "<p>Loading...</p>";
+
+    fetch("/chat/" + currentLeaveId)
+        .then(r => r.json())
+        .then(data => {
+
+            if (!data || data.length === 0) {
+                chatMessages.innerHTML = "<p>No discussion yet.</p>";
+                return;
+            }
+
+            chatMessages.innerHTML = data.map(c => `
+                <p>
+                    <b>${c.senderRole} (${c.senderName})</b>: ${c.message}
+                </p>
+            `).join("");
+        });
+}
+
+
+function sendMessage() {
+    fetch("/chat/send/" + currentLeaveId, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            senderName: adminName,
+            senderRole: adminRole,
+            message: chatInput.value
+        })
+    }).then(() => {
+        chatInput.value = "";
+        loadChat();
+    });
+}
+
+/* ===== APPROVE / REJECT ===== */
+function approve(id) {
+    fetch(`/leave/approve/${id}?adminName=${adminName}`, { method:"PUT" })
+        .then(loadLeaves);
+}
+
+function reject(id) {
+    fetch(`/leave/reject/${id}?adminName=${adminName}`, { method:"PUT" })
+        .then(loadLeaves);
+}
+
+/* ===== LOGOUT ===== */
+function logout() {
+    localStorage.clear();
+    location.href = "login.html";
+}
+
+loadLeaves();
+</script>
+
+</body>
+</html>
